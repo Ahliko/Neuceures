@@ -1,26 +1,44 @@
+from discord.ext import commands
 import discord
-import token
+import os
+from dotenv import load_dotenv
 
-with open('token.txt', 'r') as token:
-    token = token.read()
+load_dotenv(dotenv_path='config')
 
-# Create a new Discord client
-intents = discord.Intents.default()  # Create a default set of intents
-intents.typing = False  # Disable typing events for simplicity, adjust as needed
+intents = discord.Intents.default()
+intents.message_content = True
+prefix = ''
 
-client = discord.Client(intents=intents)
+bot = commands.Bot(command_prefix=prefix, intents=intents)
 
-# Event handler for when the bot is ready
-@client.event
+
+@bot.event
 async def on_ready():
-    print(f'Bot online : {client.user}')
+    print(f'Logged on as {bot.user}!')
 
-# Event handler for when a message is received
+
+@bot.command()
+async def echo(ctx, *kwargs):  # !hello
+    if not kwargs:
+        await ctx.send("Précise un argument")
+    else:
+        await ctx.send(' '.join(kwargs))
+
+
+@bot.command()
+async def whoareu(ctx):
+    await ctx.send("grr grrr je suis bastien et je suis pas content grrrrrrr <@407940245108293635>")
+
+
+@bot.event
 async def on_message(message):
-    if message.author == client.user:
+    if message.author == bot.user:
         return
+    if message.content.startswith('!hello'):
+        await message.channel.send('Hello!')
+    for i in bot.all_commands:
+        if message.content.startswith(i):
+            await bot.process_commands(message)
 
-    if message.content.lower() == 'neuceures':
-        await message.channel.send('va niquer ta race')
 
-client.run(token)
+bot.run(os.getenv('TOKEN'))
