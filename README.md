@@ -1,1 +1,3 @@
 # Neuceures
+
+A Discord Bot
